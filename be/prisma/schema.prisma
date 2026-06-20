@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String     @id @default(uuid())
+  name      String
+  email     String     @unique
+  password  String     // Hashed
+  rituals   Ritual[]
+  logs      DailyLog[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Ritual {
+  id        String     @id @default(uuid())
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String     
+  isActive  Boolean    @default(false) // Supports multiple active rituals
+  logs      DailyLog[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model DailyLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ritualId  String
+  ritual    Ritual   @relation(fields: [ritualId], references: [id], onDelete: Cascade)
+  date      DateTime @db.Date // Stripped of time, just YYYY-MM-DD
+  score     Int?     // 3, 2, 1, 0. Null represents N/A
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Enforces one score per ritual, per day
+  @@unique([ritualId, date])
+  // Speeds up heatmap queries across all of a user's logs
+  @@index([userId, date]) 
+}
