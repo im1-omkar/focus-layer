@@ -1,14 +1,14 @@
 import axios from "axios";
 
 interface Log {
-    ritualId: number;
+    ritualId: string;
     date: string;
     score: number;
 }
 
 type PostHandlerInterface =
     | {
-        ritualId: number;
+        ritualId: string;
         date: string;
         score: number;
     }

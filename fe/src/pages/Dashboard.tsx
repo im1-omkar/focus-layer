@@ -1,8 +1,8 @@
 import {  useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { changeActiveRitual, deleteRituals, getRituals, postRituals } from "../services/rituals";
 import React, {  useState } from "react";
-// import { getActiveLogs, postLogsHandler } from "../services/logs";
-// import { RitualTracker } from "../components/RitualTrackerCode";
+import { getActiveLogs } from "../services/logs";
+
 
 interface Ritual {
   id: string;
@@ -18,15 +18,23 @@ const Dashboard = () => {
 
   const [ritualName, setRitualName] =  useState('');
 
-  // const activeLogs = useQuery({
-  //   'queryKey' : ['activeLogs'],
-  //   'queryFn': getActiveLogs
-  // })
+  const {
+    data: activeLogs,
+    isPending: activeLogsPending,
+    isError: activeLogsError,
+  } = useQuery({
+    queryKey: ["activeLogs"],
+    queryFn: getActiveLogs,
+  });
 
-  // const heatMapLogs = useQuery({
-  //   'queryKey' : ['heatMapLogs'],
-  //   'queryFn' : getHeatMapLogs
-  // })
+  // const {
+  //   data: heatmapData,
+  //   isPending: heatmapPending,
+  //   isError: heatmapError,
+  // } = useQuery({
+  //   queryKey: ["heatmap"],
+  //   queryFn: getHeatMapLogs,
+  // });
 
   // const postLogsMutation = useMutation({
   //   mutationFn : postLogsHandler,
@@ -63,6 +71,7 @@ const Dashboard = () => {
     onSuccess: ()=>{
       QueryClient.invalidateQueries({
         queryKey:['rituals']
+        //change the activeMutationLogs :)
       })
     }
   })
@@ -82,7 +91,21 @@ const Dashboard = () => {
 
       <div className="flex flex-1">
         <div className="flex-2 border p-4">
-          DailyLog Table
+          {
+            activeLogsPending && (<div>Loading...</div>)
+          }
+
+          {
+            activeLogsError && (<div>Error in getting Active logs</div>)
+          }
+
+          {
+            !activeLogsPending && !activeLogsError && (<div>
+              {
+                
+              }
+            </div>)
+          }
         </div>
 
         <div className="flex-1 border p-4">
