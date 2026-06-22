@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
-import { getRituals } from "../services/rituals";
+import {  useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { changeActiveRitual, deleteRituals, getRituals, postRituals } from "../services/rituals";
+import React, { useState } from "react";
 
 interface Ritual {
   id: string;
@@ -11,6 +12,43 @@ interface Ritual {
 }
 
 const Dashboard = () => {
+  const QueryClient = useQueryClient();
+
+  const [ritualName, setRitualName] =  useState('');
+
+  const postRitualMutation = useMutation({
+    mutationFn : postRituals,
+
+    onSuccess : ()=>{
+      QueryClient.invalidateQueries({
+        queryKey:['rituals']
+      })
+
+      setRitualName('')
+    }
+
+  })
+
+  const deleteRitualMutation = useMutation({
+    mutationFn : deleteRituals,
+
+    onSuccess : ()=>{
+      QueryClient.invalidateQueries({
+        queryKey:['rituals']
+      })
+    }
+  })
+
+  const changeActiveMutation = useMutation({
+    mutationFn : changeActiveRitual,
+
+    onSuccess: ()=>{
+      QueryClient.invalidateQueries({
+        queryKey:['rituals']
+      })
+    }
+  })
+
   const { data, isPending, isError } = useQuery({
     queryKey: ["rituals"],
     queryFn: getRituals,
@@ -30,6 +68,11 @@ const Dashboard = () => {
         </div>
 
         <div className="flex-1 border p-4">
+          <div>
+            <input value={ritualName} onChange={(e:React.ChangeEvent<HTMLInputElement>)=>{setRitualName(e.target.value)}} className="border" placeholder="Ritual Name" />
+            <button onClick={()=>{
+              postRitualMutation.mutate(ritualName)}} className="bg-green-600 border m-2">Add Ritual</button>
+          </div>
 
           {isPending && (
             <div>Loading rituals...</div>
@@ -51,10 +94,16 @@ const Dashboard = () => {
                 className="border rounded p-2 mb-2"
               >
                 <div>{ritual.title}</div>
-                <div>
-                  {ritual.isActive
-                    ? "🟢 Active"
-                    : "⚫ Inactive"}
+                <div className="flex">
+                  <div className="flex-4">
+                    {ritual.isActive
+                      ? <button className="border" onClick={() => { 
+                        console.log("clicked", ritual.id);
+                        changeActiveMutation.mutate({ ritualId: ritual.id, isActive: false }) 
+                      }}>🟢 Active</button>
+                      : <button className="border" onClick={() => { changeActiveMutation.mutate({ ritualId: ritual.id, isActive: true }) }}>⚫ Inactive</button>}
+                  </div>
+                  <button onClick={() => { deleteRitualMutation.mutate(ritual.id)}} className="bg-red-600 flex-1">Delete</button>
                 </div>
               </div>
             ))}

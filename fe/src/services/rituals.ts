@@ -52,13 +52,16 @@ export const deleteRituals = async (ritualId: string) => {
     }
 };
 
-export const changeActiveRitual = async (
-    ritualId: string,
-    isActive: boolean
-) => {
+export const changeActiveRitual = async ({
+    ritualId,
+    isActive
+}:{
+    ritualId:string,
+    isActive:boolean
+}) => {
     try {
         const response = await axios.patch(
-            `${API_URL}/${ritualId}/active`,
+            `${API_URL}/${ritualId}/toggle`,
             { isActive },
             {
                 headers: getAuthHeader()
