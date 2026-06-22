@@ -5,7 +5,7 @@ const ritualRouter = express.Router();
 
 ritualRouter.get("/",async(req: express.Request, res: express.Response)=>{
     try {
-        const userId = req.query.userId as string; 
+        const userId = req.user?.id as string; 
         if (!userId) return res.status(401).json({ error: "Unauthorized. User ID required." });
 
         const rituals = await prisma.ritual.findMany({
@@ -22,7 +22,10 @@ ritualRouter.get("/",async(req: express.Request, res: express.Response)=>{
 
 ritualRouter.post("/", async(req: express.Request, res: express.Response) => {
     try {
-        const { userId, title } = req.body; 
+        const { userId, title } = {
+            userId : req.user?.id, 
+            title : req.body.title
+        }; 
 
         if (!userId || !title) {
             return res.status(400).json({ error: "User ID and title are required." });
@@ -61,6 +64,7 @@ ritualRouter.post("/", async(req: express.Request, res: express.Response) => {
 
 ritualRouter.patch("/:id/toggle", async (req: express.Request, res: express.Response) => {
     try {
+        //make sure that user should send the id which belongs to him :)
         
         const id = req.params.id as string;
 
