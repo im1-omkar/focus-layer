@@ -1,6 +1,8 @@
 import {  useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { changeActiveRitual, deleteRituals, getRituals, postRituals } from "../services/rituals";
-import React, { useState } from "react";
+import React, {  useState } from "react";
+// import { getActiveLogs, postLogsHandler } from "../services/logs";
+// import { RitualTracker } from "../components/RitualTrackerCode";
 
 interface Ritual {
   id: string;
@@ -15,6 +17,22 @@ const Dashboard = () => {
   const QueryClient = useQueryClient();
 
   const [ritualName, setRitualName] =  useState('');
+
+  // const activeLogs = useQuery({
+  //   'queryKey' : ['activeLogs'],
+  //   'queryFn': getActiveLogs
+  // })
+
+  // const heatMapLogs = useQuery({
+  //   'queryKey' : ['heatMapLogs'],
+  //   'queryFn' : getHeatMapLogs
+  // })
+
+  // const postLogsMutation = useMutation({
+  //   mutationFn : postLogsHandler,
+
+  // })
+
 
   const postRitualMutation = useMutation({
     mutationFn : postRituals,
@@ -64,7 +82,7 @@ const Dashboard = () => {
 
       <div className="flex flex-1">
         <div className="flex-2 border p-4">
-          ritual table
+          DailyLog Table
         </div>
 
         <div className="flex-1 border p-4">

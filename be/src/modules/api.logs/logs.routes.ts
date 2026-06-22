@@ -6,7 +6,13 @@ const logsRouter = express.Router();
 logsRouter.post("/",async(req: express.Request, res: express.Response)=>{
     try {
         
-        const { userId, logs, ritualId, date, score } = req.body;
+        const { userId, logs, ritualId, date, score } = {
+            userId : req.user?.id,
+            logs : req.body.logs,
+            ritualId : req.body.date,
+            date : req.body.date,
+            score : req.body.score
+        };
 
         const userIdentifier = userId; // In a real app, prefer: req.user?.id
         if (!userIdentifier) return res.status(401).json({ error: "Unauthorized. User ID required." });
@@ -55,7 +61,7 @@ logsRouter.post("/",async(req: express.Request, res: express.Response)=>{
 
 logsRouter.get("/active", async(req: express.Request, res: express.Response) => {
     try {
-        const userId = (req.query.userId as string); // In a real app: req.user?.id
+        const userId = (req.user?.id); // In a real app: req.user?.id
         if (!userId) return res.status(401).json({ error: "Unauthorized. User ID required." });
 
         const activeLogs = await prisma.dailyLog.findMany({
@@ -85,7 +91,7 @@ logsRouter.get("/active", async(req: express.Request, res: express.Response) => 
 
 logsRouter.get("/heatmap", async(req: express.Request, res: express.Response) => {
     try {
-        const userId = (req.query.userId as string); // In a real app: req.user?.id
+        const userId = (req.user?.id); // In a real app: req.user?.id
         if (!userId) return res.status(401).json({ error: "Unauthorized. User ID required." });
 
         const heatmapAggregations = await prisma.dailyLog.groupBy({
