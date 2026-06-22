@@ -1,32 +1,58 @@
 import React, {  useState } from 'react'
 import { handleSignin, handleSignup } from '../services/signup'
+import { useMutation } from '@tanstack/react-query'
 
 const Auth = () => {
+  
   const [signin, isSignin] = useState<boolean>(true)
-
   const [email, setEmail] = useState<string | null>('')
   const [password, setPassword] = useState<string | null>('')
   const [name, setName] = useState<string | null>('')
-
   const [message, setMessage] = useState('message')
 
-  const signUpHandler = async()=>{
-    const result =  await handleSignup({ name, email, password })
-    if (result){
-      setMessage(JSON.stringify(result.user))
-      return;
-    }
-    setMessage("signup faillll")
-  }
+  const signupMutation = useMutation({
+    mutationFn : handleSignup,
 
-  const signInHandler = async()=>{
-    const result = await handleSignin({ email, password })
-    if (result){
-      setMessage(JSON.stringify(result.token))
-      return;
+    onSuccess : (data)=>{
+      setMessage(JSON.stringify(data));
+    },
+
+    onError : ()=>{
+      setMessage("signup failled")
     }
-    setMessage("signininnn faillll")
-  }
+  })
+
+  const signinMutation = useMutation({
+    mutationFn : handleSignin,
+
+    onSuccess : (data)=>{
+      setMessage(JSON.stringify(data))
+      localStorage.setItem('token',data.token)
+    },
+
+    onError : ()=>{
+      setMessage('signin faillled')
+    }
+  })
+
+  // const signUpHandler = async()=>{
+  //   const result =  await handleSignup({ name, email, password })
+  //   if (result){
+  //     setMessage(JSON.stringify(result))
+  //     return;
+  //   }
+  //   setMessage("signup faillll")
+  // }
+
+  // const signInHandler = async()=>{
+  //   const result = await handleSignin({ email, password })
+  //   if (result){
+  //     setMessage(JSON.stringify(result.token))
+  //     localStorage.setItem("token",result.token)
+  //     return;
+  //   }
+  //   setMessage("signininnn faillll")
+  // }
 
   return (
     <div className='h-screen w-screen flex justify-center items-center'>
@@ -39,13 +65,26 @@ const Auth = () => {
           signin ? <div className='flex flex-col'>
             <input onChange={(e: React.ChangeEvent<HTMLInputElement >)=>{setEmail(e.target.value)}} className='border m-3' placeholder='email'/>
             <input onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setPassword(e.target.value) }} type="password" className='border m-3' placeholder='password'/>
-            <button onClick={()=>{signInHandler()}} className='bg-green-400 border'>SignIn</button>
+            <button onClick={()=>{
+              signinMutation.mutate({
+                email,
+                password
+              })
+            }} className='bg-green-400 border'>
+              {signinMutation.isPending? 'Loading...' : 'Signin'}
+            </button>
           </div> : 
           <div className='flex flex-col'>
             <input onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setName(e.target.value) }} className='border m-3' placeholder='name'/>
             <input onChange={(e: React.ChangeEvent<HTMLInputElement>)=>{setEmail(e.target.value)}} className='border m-3' placeholder='email'/>
               <input onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setPassword(e.target.value) }} type="password" className='border m-3' placeholder='password' />
-            <button onClick={() => { signUpHandler() }} className='bg-green-400 border'>Signup</button>
+            <button onClick={() => {
+              signupMutation.mutate({
+                name,
+                email,
+                password
+              })
+            }} className='bg-green-400 border'>{signupMutation.isPending ? 'Loading' : 'signup'}</button>
           </div>
         }
         <div>{message}</div>
@@ -54,4 +93,4 @@ const Auth = () => {
   )
 }
 
-export default Auth
+export default Auth;

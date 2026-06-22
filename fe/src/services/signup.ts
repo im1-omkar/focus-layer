@@ -28,7 +28,7 @@ export const handleSignup = async ({name, email, password} : SignupInterface)=>{
             console.log(err.message)
             console.log("error while signingUp")
         }
-        return  false
+        return  'signup faillled'
     }
 }
 
@@ -42,6 +42,7 @@ export const handleSignin = async({ email, password } : SigninInterface )=>{
             email,
             password
         })
+
         return response.data;
     }
     catch(err){
@@ -49,6 +50,6 @@ export const handleSignin = async({ email, password } : SigninInterface )=>{
             console.log(err.message)
             console.log("error while signing in ")
         }
-        return false
+        return "signin faillled"
     }
 }
