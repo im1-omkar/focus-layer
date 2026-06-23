@@ -9,7 +9,7 @@ logsRouter.post("/",async(req: express.Request, res: express.Response)=>{
         const { userId, logs, ritualId, date, score } = {
             userId : req.user?.id,
             logs : req.body.logs,
-            ritualId : req.body.date,
+            ritualId : req.body.ritualId,
             date : req.body.date,
             score : req.body.score
         };

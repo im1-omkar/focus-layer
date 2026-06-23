@@ -1,3 +1,6 @@
+import type { UseMutationResult } from "@tanstack/react-query";
+import { useState } from "react";
+
 interface Ritual {
     id: string;
     title: string;
@@ -9,17 +12,43 @@ interface Ritual {
 
 type GroupedLogs = Record<string, Record<string, number | null>>;
 
+interface Log {
+    ritualId: string;
+    date: string;
+    score: number;
+}
+
+type PostHandlerInterface =
+    | {
+        ritualId: string;
+        date: string;
+        score: number;
+    }
+    | {
+        logs: Log[];
+    };
+
 interface ActiveLogsTableProps {
     rituals: Ritual[];
     logsGroupedByDate: GroupedLogs;
     uniqueDates: string[];
+    postLogsMutation: UseMutationResult<any, Error, PostHandlerInterface, unknown>
 }
 
 const ActiveLogsTable = ({
     rituals,
     logsGroupedByDate,
     uniqueDates,
+    postLogsMutation
 }: ActiveLogsTableProps) => {
+
+    const [editingCell, setEditingCell] = useState<{
+        date: string;
+        ritualId: string;
+    } | null>(null);
+
+    const [inputValue, setInputValue] = useState("");
+
     return (
         <div>
             <div>Active Logs Section</div>
@@ -61,8 +90,60 @@ const ActiveLogsTable = ({
                                         <td
                                             key={ritual.id}
                                             className="border p-2 text-center"
+                                            onDoubleClick={() => {
+                                                setEditingCell({
+                                                    date,
+                                                    ritualId: ritual.id,
+                                                });
+
+                                                setInputValue(
+                                                    score !== undefined && score !== null
+                                                        ? String(score)
+                                                        : ""
+                                                );
+                                            }}
                                         >
-                                            {score ?? "-"}
+                                            {editingCell?.date === date &&
+                                                editingCell?.ritualId === ritual.id ? (
+                                                <input
+                                                    autoFocus
+                                                    value={inputValue}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+
+                                                        // only allow empty, 0,1,2,3
+                                                        if (
+                                                            value === "" ||
+                                                            ["0", "1", "2", "3"].includes(value)
+                                                        ) {
+                                                            setInputValue(value);
+                                                        }
+                                                    }}
+                                                    onBlur={() => {
+                                                        const numericValue =
+                                                            inputValue === ""
+                                                                ? null
+                                                                : Number(inputValue);
+
+                                                        // YOUR API HANDLER HERE
+                                                        postLogsMutation.mutate({
+                                                            date,
+                                                            ritualId: ritual.id,
+                                                            score: numericValue ? numericValue : 0,
+                                                        });
+
+                                                        setEditingCell(null);
+                                                    }}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === "Enter") {
+                                                            e.currentTarget.blur();
+                                                        }
+                                                    }}
+                                                    className="w-12 text-center border rounded"
+                                                />
+                                            ) : (
+                                                score ?? "-"
+                                            )}
                                         </td>
                                     );
                                 })}

@@ -1,7 +1,7 @@
 import {  useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { changeActiveRitual, deleteRituals, getRituals, postRituals } from "../services/rituals";
 import React, {  useState } from "react";
-import { getActiveLogs, getHeatMapLogs } from "../services/logs";
+import { getActiveLogs, getHeatMapLogs, postLogsHandler } from "../services/logs";
 import ActiveLogsTable from "../components/ActiveTable";
 import RitualCard from "../components/RitualCard";
 import Heatmap from "../components/Heatmap";
@@ -57,10 +57,16 @@ const Dashboard = () => {
     queryFn: getHeatMapLogs,
   });
 
-  // const postLogsMutation = useMutation({
-  //   mutationFn : postLogsHandler,
+  const postLogsMutation = useMutation({
+    mutationFn : postLogsHandler,
 
-  // })
+    onSuccess : ()=>{
+      QueryClient.invalidateQueries({ queryKey: ['heatmap']})
+
+      QueryClient.invalidateQueries({ queryKey: ['activeLogs']})
+    }
+
+  })
 
 
   const postRitualMutation = useMutation({
@@ -157,6 +163,7 @@ const Dashboard = () => {
                   rituals={rituals}
                   logsGroupedByDate={logsGroupedByDate}
                   uniqueDates={uniqueDates}
+                  postLogsMutation={postLogsMutation}
                 />
               }
             </div>)
