@@ -4,6 +4,7 @@ import React, {  useState } from "react";
 import { getActiveLogs, getHeatMapLogs } from "../services/logs";
 import ActiveLogsTable from "../components/ActiveTable";
 import RitualCard from "../components/RitualCard";
+import Heatmap from "../components/Heatmap";
 
 interface Ritual {
   id: string;
@@ -118,14 +119,25 @@ const Dashboard = () => {
   }, {});
 
   // 2. Get a sorted array of unique dates to act as our rows
-  const uniqueDates = Object.keys(logsGroupedByDate).sort();
+  const uniqueDates = Object.keys(logsGroupedByDate).sort((a, b) => b.localeCompare(a));
 
   const rituals: Ritual[] = data?.rituals ?? [];
 
   return (
     <div className="w-screen h-screen flex flex-col">
       <div className="p-4 border-b">
-        heatmap and charts
+        <h2>Activity Heatmap</h2>
+        {
+          heatmapPending && <Heatmap data={[]} />
+        }
+        {
+          heatmapError &&<div><div>Error while fetching data</div> 
+          <Heatmap data={[]} />
+          </div>
+        }
+        {
+          !heatmapPending && !heatmapError && <Heatmap data={heatmapData.heatmap}/>
+        }
       </div>
 
       <div className="flex flex-1">

@@ -1,0 +1,70 @@
+/* Heatmap.css */
+.heatmap-wrapper {
+    display: flex;
+    flex-direction: column;
+    font-family: sans-serif;
+    width: max-content;
+}
+
+.months-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    margin-left: 30px;
+    /* Offset for the day labels */
+    color: #57606a;
+    font-size: 12px;
+}
+
+.heatmap-body {
+    display: flex;
+    gap: 10px;
+}
+
+.days-sidebar {
+    display: grid;
+    grid-template-rows: repeat(7, 15px);
+    gap: 4px;
+    font-size: 12px;
+    color: #57606a;
+    text-align: right;
+    line-height: 15px;
+}
+
+.heatmap-grid {
+    display: grid;
+    grid-template-rows: repeat(7, 15px);
+    /* Exactly 7 rows for Mon-Sun */
+    grid-auto-flow: column;
+    /* Fills top-to-bottom, then left-to-right */
+    gap: 4px;
+}
+
+.heatmap-cell {
+    width: 15px;
+    height: 15px;
+    border-radius: 3px;
+    background-color: #ebedf0;
+    /* Default empty state */
+}
+
+/* GitHub's standard color scale */
+.score-0 {
+    background-color: #ebedf0;
+}
+
+.score-1 {
+    background-color: #9be9a8;
+}
+
+.score-2 {
+    background-color: #40c463;
+}
+
+.score-3 {
+    background-color: #30a14e;
+}
+
+.score-4 {
+    background-color: #216e39;
+}
