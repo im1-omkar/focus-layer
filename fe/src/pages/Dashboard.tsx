@@ -2,7 +2,8 @@ import {  useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { changeActiveRitual, deleteRituals, getRituals, postRituals } from "../services/rituals";
 import React, {  useState } from "react";
 import { getActiveLogs, getHeatMapLogs } from "../services/logs";
-
+import ActiveLogsTable from "../components/ActiveTable";
+import RitualCard from "../components/RitualCard";
 
 interface Ritual {
   id: string;
@@ -140,70 +141,11 @@ const Dashboard = () => {
           {
             !activeLogsPending && !activeLogsError && (<div>
               {
-                <div>
-                  <div>Active Logs Section</div>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th className="border p-2 bg-orange-300">Date</th>
-                        {rituals.map(ritual => (
-                          ritual.isActive && (
-                            <th key={ritual.title} className="border p-2">
-                              {ritual.title}
-                            </th>
-                          )
-                        ))}
-                        {/* Assuming this last column is meant for a Daily Total Score */}
-                        <th className="border p-2 bg-green-300">Total Score</th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      {/* Map over our grouped dates to create rows */}
-                      {uniqueDates.map(date => {
-                        const dailyScores = logsGroupedByDate[date];
-
-                        return (
-                          <tr key={date}>
-                            {/* 1. Date Column */}
-                            <td className="border p-2 bg-orange-300">{date}</td>
-
-                            {/* 2. Ritual Score Columns */}
-                            {rituals.map(ritual => {
-                              if (!ritual.isActive) return null;
-
-                              // Look up the score for this ritual on this specific date
-                              const score = dailyScores[ritual.title];
-
-                              return (
-                                <td key={ritual.title} className="border p-2 text-center">
-                                  {/* If score is null or undefined, render a dash */}
-                                  {score !== undefined && score !== null ? score : '-'}
-                                </td>
-                              );
-                            })}
-
-                            {/* 3. Daily Total Score Column (Optional) */}
-                            <td className="border p-2 bg-green-300 text-center font-bold">
-                              {rituals.reduce((total, ritual) => {
-                                // 1. Extract the score into a local variable first
-                                const score = dailyScores[ritual.title];
-
-                                // 2. Check if ritual is active AND the score is explicitly a number
-                                if (ritual.isActive && typeof score === 'number') {
-                                  return total + score;
-                                }
-
-                                // If it's null, undefined, or inactive, just return the current total
-                                return total;
-                              }, 0)}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                <ActiveLogsTable
+                  rituals={rituals}
+                  logsGroupedByDate={logsGroupedByDate}
+                  uniqueDates={uniqueDates}
+                />
               }
             </div>)
           }
@@ -231,23 +173,24 @@ const Dashboard = () => {
           {!isPending &&
             !isError &&
             rituals.map((ritual) => (
-              <div
+              <RitualCard
                 key={ritual.id}
-                className="border rounded p-2 mb-2"
-              >
-                <div>{ritual.title}</div>
-                <div className="flex">
-                  <div className="flex-4">
-                    {ritual.isActive
-                      ? <button className="border" onClick={() => { 
-                        console.log("clicked", ritual.id);
-                        changeActiveMutation.mutate({ ritualId: ritual.id, isActive: false }) 
-                      }}>🟢 Active</button>
-                      : <button className="border" onClick={() => { changeActiveMutation.mutate({ ritualId: ritual.id, isActive: true }) }}>⚫ Inactive</button>}
-                  </div>
-                  <button onClick={() => { deleteRitualMutation.mutate(ritual.id)}} className="bg-red-600 flex-1">Delete</button>
-                </div>
-              </div>
+                ritual={ritual}
+                onDelete={(ritualId) =>
+                  deleteRitualMutation.mutate(
+                    ritualId
+                  )
+                }
+                onToggleActive={(
+                  ritualId,
+                  isActive
+                ) =>
+                  changeActiveMutation.mutate({
+                    ritualId,
+                    isActive,
+                  })
+                }
+              />
             ))}
         </div>
       </div>
